@@ -220,6 +220,28 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
  navigationType:(UIWebViewNavigationType)navigationType
 {
   BOOL isJSNavigation = [request.URL.scheme isEqualToString:RCTJSNavigationScheme];
+  BOOL closeWebView = NO;
+  NSString *myRequest = [request.URL absoluteString];
+
+  if ([myRequest rangeOfString:@"QP_BACK:"].location != NSNotFound) {
+    closeWebView = YES;
+  }
+
+  if ([myRequest rangeOfString:@"QP_CANCEL:"].location != NSNotFound) {
+    closeWebView = YES;
+  }
+
+  if ([myRequest rangeOfString:@"QP_DONE:"].location != NSNotFound) {
+    closeWebView = YES;
+  }
+
+  if (closeWebView) {
+    NSString* message = @"close window";
+
+    [self sendToBridge:message];
+
+    return NO;
+  }
 
   if (!isJSNavigation && [request.URL.scheme isEqualToString:RCTWebViewBridgeSchema]) {
     NSString* message = [webView stringByEvaluatingJavaScriptFromString:@"WebViewBridge.__fetch__()"];
